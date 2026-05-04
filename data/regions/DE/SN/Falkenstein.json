@@ -1,1 +1,50 @@
-{ "region_name": "Germany - Saxony (Falkenstein)", "google_module": { "base_lat": 50.4779, "base_lon": 12.3713, "lang_params": "hl=de-DE&gl=DE", "valid_url_suffix": "de" }, "trust_module": { "white_urls": [], "static_urls": [ "https://www.bundesregierung.de/", "https://www.arbeitsagentur.de/", "https://www.dwd.de/", "https://www.sparkasse.de/", "https://www.stepstone.de/", "https://www.immobilienscout24.de/", "https://www.rewe.de/", "https://www.edeka.de/", "https://www.amazon.de/", "https://www.obi.de/" ] } }
+{
+  "region_name": "Germany - Saxony (Falkenstein)",
+  "google_module": {
+    "base_lat": 50.4779,
+    "base_lon": 12.3713,
+    "lang_params": "hl=de-DE&gl=DE",
+    "valid_url_suffix": "de"
+  },
+  "trust_module": {
+    "white_urls": [
+      "https://www.tagesschau.de/newsticker/liveblog-iran-montag-120.html",
+      "https://www.rewe.de/",
+      "https://www.tagesschau.de/wirtschaft/verbraucher/investment-ferienhaus-100.html",
+      "https://www.stepstone.de/",
+      "https://www.tagesschau.de/inland/gesellschaft/pflege-auszubildende-boom-lehrermangel-100.html",
+      "https://www.tagesschau.de/ausland/europa/russland-internet-blockade-bevoelkerung-100.html",
+      "https://www.tagesschau.de/inland/innenpolitik/koalition-kritik-100.html",
+      "https://www.edeka.de/",
+      "https://www.tagesschau.de/ausland/europa/pressefreiheit-mihr-100.html",
+      "https://www.tagesschau.de/ausland/amerika/kuba-usa-uebernahme-drohung-trump-zurueckgewiesen-100.html",
+      "https://www.tagesschau.de/inland/innenpolitik/syrer-rueckkehr-102.html",
+      "https://www.tagesschau.de/inland/dobrindt-grenzkontrollen-bab-100.html",
+      "https://www.tagesschau.de/ausland/europa/finnland-lithium-100.html",
+      "https://www.dwd.de/",
+      "https://www.immobilienscout24.de/",
+      "https://www.tagesschau.de/wissen/gesundheit/tierwohl-gesundheit-mensch-100.html",
+      "https://www.amazon.de/",
+      "https://www.bundesregierung.de/",
+      "https://www.tagesschau.de/wissen/forschung/versalzenes-grundwasser-100.html",
+      "https://www.arbeitsagentur.de/",
+      "https://www.tagesschau.de/ausland/asien/mohammadi-nobelpreistraegerin-iran-100.html",
+      "https://www.obi.de/",
+      "https://www.tagesschau.de/wirtschaft/trump-zoelle-reaktion-eu-100.html",
+      "https://www.sparkasse.de/",
+      "https://www.tagesschau.de/inland/innenpolitik/rainer-biokraftstoffe-landwirtschaftsminister-100.html"
+    ],
+    "static_urls": [
+      "https://www.bundesregierung.de/",
+      "https://www.arbeitsagentur.de/",
+      "https://www.dwd.de/",
+      "https://www.sparkasse.de/",
+      "https://www.stepstone.de/",
+      "https://www.immobilienscout24.de/",
+      "https://www.rewe.de/",
+      "https://www.edeka.de/",
+      "https://www.amazon.de/",
+      "https://www.obi.de/"
+    ]
+  }
+}

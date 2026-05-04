@@ -1,1 +1,50 @@
-{ "region_name": "United States - Ohio (Columbus)", "google_module": { "base_lat": 39.9612, "base_lon": -83.0007, "lang_params": "hl=en-US&gl=US", "valid_url_suffix": "com" }, "trust_module": { "white_urls": [], "static_urls": [ "https://www.usa.gov/", "https://www.irs.gov/", "https://www.weather.gov/", "https://www.chase.com/", "https://www.indeed.com/", "https://www.zillow.com/", "https://www.walmart.com/", "https://www.target.com/", "https://www.amazon.com/", "https://www.homedepot.com/" ] } }
+{
+  "region_name": "United States - Ohio (Columbus)",
+  "google_module": {
+    "base_lat": 39.9612,
+    "base_lon": -83.0007,
+    "lang_params": "hl=en-US&gl=US",
+    "valid_url_suffix": "com"
+  },
+  "trust_module": {
+    "white_urls": [
+      "https://www.amazon.com/",
+      "https://www.cnn.com/2023/04/16/success/husbands-wives-earning-division-of-labor-pew-survey/index.html",
+      "https://www.homedepot.com/",
+      "https://www.weather.gov/",
+      "https://www.cnn.com/2023/04/17/entertainment/jamie-foxx-remains-hospitalized/index.html",
+      "https://www.cnn.com/cnn-underscored/deals/best-amazon-deals-2023-04-12?iid=CNNUnderscoredHPcontainer",
+      "https://www.cnn.com/2023/04/17/opinions/jim-jordan-clarence-thomas-judiciary-committee-obeidallah/index.html",
+      "https://www.cnn.com/videos/us/2023/04/18/pizza-guy-trips-perp-moos-cprog-orig-bdk.cnn",
+      "https://www.chase.com/",
+      "https://www.cnn.com/2023/04/18/us/mccurtain-county-oklahoma-officials-recording/index.html",
+      "https://www.cnn.com/videos/world/2023/04/18/india-ex-lawmaker-atiq-ahmed-assassination-sud-pkg-contd-ovn-intl-hnk-vpx.cnn",
+      "https://www.walmart.com/",
+      "https://www.cnn.com/europe/live-news/russia-ukraine-war-news-04-18-23/index.html",
+      "https://www.cnn.com/2023/04/18/us/undocumented-immigrants-taxes-cec/index.html",
+      "https://www.target.com/",
+      "https://www.cnn.com/videos/politics/2023/04/18/jake-tapper-dominion-lawsuit-settlement-fox-news-statement-lead-vpx.cnn",
+      "https://www.usa.gov/",
+      "https://www.cnn.com/cnn-underscored/deals/wayfair-way-day-2023-04-17?iid=CNNUnderscoredHPcontainer",
+      "https://www.irs.gov/",
+      "https://www.indeed.com/",
+      "https://www.cnn.com/2023/04/18/opinions/2024-presidential-election-alternative-voters-lieberman",
+      "https://www.cnn.com/videos/travel/2023/04/18/century-old-shipwrecks-lake-superior-discovery-contd-orig-zt.cnn",
+      "https://www.zillow.com/",
+      "https://www.cnn.com/cnn-underscored/home/editors-favorite-sustainable-products?iid=CNNUnderscoredHPcontainer",
+      "https://www.cnn.com/2023/04/18/us/benadryl-tiktok-challenge-teen-death-wellness/index.html"
+    ],
+    "static_urls": [
+      "https://www.usa.gov/",
+      "https://www.irs.gov/",
+      "https://www.weather.gov/",
+      "https://www.chase.com/",
+      "https://www.indeed.com/",
+      "https://www.zillow.com/",
+      "https://www.walmart.com/",
+      "https://www.target.com/",
+      "https://www.amazon.com/",
+      "https://www.homedepot.com/"
+    ]
+  }
+}
