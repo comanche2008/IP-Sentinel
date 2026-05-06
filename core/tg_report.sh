@@ -204,7 +204,7 @@ MSG="$MSG
 ⏱️ 战报生成: \`${REPORT_UTC_TIME}\`
 当前运行版本: \`v${LOCAL_VER}\`"
 
-# 比对逻辑：如果成功抓到了远端版本，且和本地不一样
+# 比准逻辑：如果成功抓到了远端版本，且和本地不一样
 if [ -n "$REMOTE_VER" ] && [ "$REMOTE_VER" != "$LOCAL_VER" ]; then
     MSG="$MSG
 最新官方版本: \`v${REMOTE_VER}\` (✨有新版)
@@ -212,11 +212,13 @@ if [ -n "$REMOTE_VER" ] && [ "$REMOTE_VER" != "$LOCAL_VER" ]; then
 elif [ -n "$REMOTE_VER" ] && [ "$REMOTE_VER" == "$LOCAL_VER" ]; then
     MSG="$MSG
 最新官方版本: \`v${REMOTE_VER}\` (✅已是最新)
-💡 *IP-Sentinel 持续为您守护节点。若本项目对您有帮助，欢迎前往 GitHub 赐予 🌟*"
+💡 *IP-Sentinel 持续为您守护节点。*
+*若本项目对您有帮助，欢迎前往 GitHub 赐予 🌟*"
 else
     # 抓取失败兜底
     MSG="$MSG
-💡 *IP-Sentinel 持续为您守护节点。若本项目对您有帮助，欢迎前往 GitHub 赐予 🌟*"
+💡 *IP-Sentinel 持续为您守护节点。*
+*若本项目对您有帮助，欢迎前往 GitHub 赐予 🌟*"
 fi
 
 # 5. 调用 API 推送 (接入安全网关，挂载控制台按钮与 GitHub 引流)
