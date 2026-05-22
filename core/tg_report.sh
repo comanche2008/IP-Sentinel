@@ -204,26 +204,31 @@ REPORT_UTC_TIME=$(date -u "+%Y-%m-%d %H:%M:%S UTC")
 REPO_RAW_URL="https://raw.githubusercontent.com/hotyue/IP-Sentinel/main"
 REMOTE_VER=$(curl -s -m 3 "${REPO_RAW_URL}/version.txt" | grep "^AGENT_VERSION=" | cut -d'=' -f2 | tr -d '[:space:]')
 
-# 构建底部引擎状态块
+# 构建底部引擎状态块的基础信息
 MSG="$MSG
 ----------------------------
 🛡️ **系统引擎状态**
-⏱️ 战报生成: \`${REPORT_UTC_TIME}\`
-当前运行版本: \`v${LOCAL_VER}\`"
+⏱️ 战报生成: \`${REPORT_UTC_TIME}\`"
 
-# 比准逻辑：如果成功抓到了远端版本，且和本地不一样
-if [ -n "$REMOTE_VER" ] && [ "$REMOTE_VER" != "$LOCAL_VER" ]; then
-    MSG="$MSG
-最新官方版本: \`v${REMOTE_VER}\` (✨有新版)
-💡 *系统提示：检测到新版引擎，建议通过控制台执行 OTA 热更新！*"
-elif [ -n "$REMOTE_VER" ] && [ "$REMOTE_VER" == "$LOCAL_VER" ]; then
-    MSG="$MSG
-最新官方版本: \`v${REMOTE_VER}\` (✅已是最新)
+# 比准逻辑：根据是否为最新版本，动态决定占用的行数
+if [ -n "$REMOTE_VER" ]; then
+    if [ "$REMOTE_VER" != "$LOCAL_VER" ]; then
+        # [需要升级] 换行显示旧版本与新版本提示
+        MSG="$MSG
+当前运行版本: \`v${LOCAL_VER}\`
+✨ **发现新版本**: \`v${REMOTE_VER}\` (建议更新)
+💡 *系统提示：检测到新版引擎，建议通过中枢控制台执行 OTA 热更新！*"
+    else
+        # [已是最新] 不换行，直接在尾部追加绿勾
+        MSG="$MSG
+当前运行版本: \`v${LOCAL_VER}\` (✅已是最新)
 💡 *IP-Sentinel 持续为您守护节点。*
 *若本项目对您有帮助，欢迎前往 GitHub 赐予 🌟*"
+    fi
 else
-    # 抓取失败兜底
+    # [抓取失败兜底]
     MSG="$MSG
+当前运行版本: \`v${LOCAL_VER}\`
 💡 *IP-Sentinel 持续为您守护节点。*
 *若本项目对您有帮助，欢迎前往 GitHub 赐予 🌟*"
 fi
