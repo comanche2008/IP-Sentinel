@@ -67,7 +67,7 @@ CONFIG_FILE="${INSTALL_DIR}/config.conf"
 
 # [网络容灾] 挂载双栈并利用防抖重试护甲，从远端解析运行态版本约束
 TARGET_VERSION=$( (curl -fsSL --connect-timeout 5 --retry 2 "${REPO_RAW_URL}/version.txt" || curl -4 -fsSL --connect-timeout 5 --retry 2 "${REPO_RAW_URL}/version.txt") 2>/dev/null | grep "^AGENT_VERSION=" | cut -d'=' -f2 | tr -d '[:space:]')
-TARGET_VERSION=${TARGET_VERSION:-"4.1.1"}
+TARGET_VERSION=${TARGET_VERSION:-"4.2.0"}
 
 version_lt() {
     test "$(printf '%s\n' "$1" "$2" | sort -V | head -n 1)" = "$1" && test "$1" != "$2"
@@ -461,6 +461,27 @@ if [ "$UPGRADE_MODE" == "false" ]; then
         SAFE_PUBLIC_IP="$PUBLIC_IP"
     fi
 
+    # ==========================================================
+    # [v4.2.0 核心架构] 控制面(通讯)与数据面(养护)分离架构
+    # ==========================================================
+    COMM_IP="$PUBLIC_IP"
+    if [[ "$PUBLIC_IP" == *":"* ]]; then
+        echo -e "\n\033[36m[4.6/7] 正在构建双轨通讯分离架构 (Control Plane Separation)...\033[0m"
+        echo -e " \033[33m⚠️ 检测到养护锚点为 IPv6，正在嗅探本机 IPv4 以构建防 MTU 黑洞通讯专线...\033[0m"
+        if [[ -n "$DETECT_V4" ]]; then
+            COMM_IP="$DETECT_V4"
+            echo -e " \033[32m✅ 成功建立双轨架构: 养护数据流走 IPv6 ($PUBLIC_IP)，中枢控制流走 IPv4 ($COMM_IP)\033[0m"
+        else
+            echo -e " \033[33m⚠️ 本机无公网 IPv4，双轨降级为纯 IPv6 单轨模式。\033[0m"
+        fi
+    fi
+
+    if [[ "$COMM_IP" == *":"* ]] && [[ "$COMM_IP" != *"["* ]]; then
+        SAFE_COMM_IP="[${COMM_IP}]"
+    else
+        SAFE_COMM_IP="$COMM_IP"
+    fi
+
     echo -n "🕵️ 正在进行出站链路试射 (NAT环境与双栈嗅探)..."
     RAW_TEST_IP=$(echo "$SAFE_PUBLIC_IP" | tr -d '[]')
     
@@ -536,6 +557,7 @@ LOG_FILE="${INSTALL_DIR}/logs/sentinel.log"
 IP_PREF="$IP_PREF"
 PUBLIC_IP="$SAFE_PUBLIC_IP"
 BIND_IP="$BIND_IP"
+COMM_IP="$SAFE_COMM_IP"
 
 NODE_NAME="$NODE_NAME"
 NODE_ALIAS="$NODE_ALIAS"
@@ -580,6 +602,27 @@ if [ "$UPGRADE_MODE" == "true" ]; then
         BIND_IP="$NEW_BIND_IP"
     else
         SAFE_PUBLIC_IP="${PUBLIC_IP}"
+    fi
+
+    # [v4.2.0 热修复] 为老版本司令部平滑补齐双轨通讯 IP
+    if ! grep -q "^COMM_IP=" "$CONFIG_FILE"; then
+        echo -e "\n🔄 [平滑迁移] 正在为老节点无损注入 v4.2.0 双轨通讯架构..."
+        TMP_PUB_IP=$(grep "^PUBLIC_IP=" "$CONFIG_FILE" | cut -d'"' -f2 | tr -d '[]')
+        if [[ "$TMP_PUB_IP" == *":"* ]]; then
+            TMP_V4=$(curl -4 -s -m 3 api.ip.sb/ip 2>/dev/null | tr -d '[:space:]')
+            if [ -n "$TMP_V4" ]; then
+                NEW_COMM_IP="$TMP_V4"
+                echo -e " \033[32m✅ 已成功抓取备用 IPv4 ($NEW_COMM_IP) 作为控制面通讯专线。\033[0m"
+            else
+                NEW_COMM_IP="[$TMP_PUB_IP]"
+            fi
+        else
+            NEW_COMM_IP="$TMP_PUB_IP"
+        fi
+        echo "COMM_IP=\"$NEW_COMM_IP\"" >> "$CONFIG_FILE"
+        SAFE_COMM_IP="$NEW_COMM_IP"
+    else
+        SAFE_COMM_IP=$(grep "^COMM_IP=" "$CONFIG_FILE" | cut -d'"' -f2)
     fi
 
     if ! grep -q "^NODE_NAME=" "$CONFIG_FILE"; then
@@ -873,7 +916,7 @@ EOF
 # ----------------------------------------------------------
 if [[ -n "$TG_TOKEN" ]] && [[ -n "$CHAT_ID" ]]; then
     
-    REG_MSG="#REGISTER#|${REGION_CODE}|${NODE_NAME}|${SAFE_PUBLIC_IP}|${AGENT_PORT}|${NODE_ALIAS}|${ENABLE_OTA}"
+    REG_MSG="#REGISTER#|${REGION_CODE}|${NODE_NAME}|${SAFE_COMM_IP}|${AGENT_PORT}|${NODE_ALIAS}|${ENABLE_OTA}"
     
     if [ "$UPGRADE_MODE" == "true" ]; then
         OLD_VERSION=$(grep "^AGENT_VERSION=" "$CONFIG_FILE" | cut -d'"' -f2)
@@ -918,7 +961,8 @@ if [[ -n "$TG_TOKEN" ]] && [[ -n "$CHAT_ID" ]]; then
         echo -e "\n📡 正在向指挥部发送注册暗号..."
         TEXT_MSG="✨ *IP-Sentinel 部署成功！*
 📍 区域：${REGION_NAME}
-🌐 IP：${SAFE_PUBLIC_IP}
+🌐 养护 IP：${SAFE_PUBLIC_IP}
+📡 通讯 IP：${SAFE_COMM_IP}
 🔌 端口：${AGENT_PORT}
 
 🔑 *请点击下方指令复制并回复给机器人：*
@@ -959,7 +1003,7 @@ if [[ -n "$TG_TOKEN" ]]; then
         fi
     fi
     
-    echo -e "\n\033[31m⚠️ 【高危警告】您的节点身份已永久锁定为公网 IP: $SAFE_PUBLIC_IP\033[0m"
+    echo -e "\n\033[31m⚠️ 【高危警告】您的节点通讯身份已永久锁定为公网 IP: $SAFE_COMM_IP\033[0m"
     echo -e "\033[33m为确保 Master 司令部能够成功下发指令，您【必须】前往云服务商 (如 AWS/Oracle/阿里云 等) 的网页控制台中，将安全组 (Security Group) 防火墙的 TCP $AGENT_PORT 端口彻底放行！\033[0m"
     echo -e "\033[31m⛔ 禁止尝试通过修改脚本强行绑定局域网/内网 IP 来绕过通信阻断，这无异于掩耳盗铃，将彻底摧毁本系统“公网IP信用养护”的核心目标！\033[0m\n"
     if [ -n "$FW_MSG" ]; then
