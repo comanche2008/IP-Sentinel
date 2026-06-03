@@ -554,7 +554,8 @@ while true; do
                         BTN_CONFIG="[{\"text\":\"✏️ 更改终端展示代号\",\"callback_data\":\"rename:$TARGET_NODE\"}]"
                     fi
                     
-                    BTN_DANGER="[{\"text\":\"🗑️ 从中枢销毁该档案\",\"callback_data\":\"del:$TARGET_NODE\"}, {\"text\":\"⬅️ 返回战区列表\",\"callback_data\":\"list_nodes\"}]"
+                    # 变更 callback_data 由 del 变为 del_confirm
+BTN_DANGER="[{\"text\":\"🗑️ 从中枢销毁该档案\",\"callback_data\":\"del_confirm:$TARGET_NODE\"}, {\"text\":\"⬅️ 返回战区列表\",\"callback_data\":\"list_nodes\"}]"
 
                     BTNS="[$BTN_ACTION, $BTN_TOGGLE, $BTN_CONFIG, $BTN_DANGER]"
                     TEXT_MSG="⚙️ **目标锁定**: \`$TARGET_ALIAS\`\n(底层标识: \`$TARGET_NODE\`)\n🌐 IP 坐标: \`$A_IP\`\n🕒 最后通讯: \`$LAST_SEEN\`\n\n请下达精确控制指令："
@@ -617,7 +618,22 @@ while true; do
                     fi
                     ;;
 
-                del:*)
+                del_confirm:*)
+                    TARGET_NODE=$(echo "${TEXT#*:}" | tr -cd 'a-zA-Z0-9_.-')
+                    TARGET_ALIAS=$(db_exec "SELECT IFNULL(node_alias, node_name) FROM nodes WHERE chat_id='$CHAT_ID' AND node_name='$TARGET_NODE' LIMIT 1;")
+                    [ -z "$TARGET_ALIAS" ] && TARGET_ALIAS="$TARGET_NODE"
+                    
+                    CONFIRM_BTNS="[[{\"text\":\"🚨 确定永久销毁该档案\",\"callback_data\":\"del_execute:$TARGET_NODE\"}], [{\"text\":\"取消操作\",\"callback_data\":\"manage:$TARGET_NODE\"}]]"
+                    WARNING_MSG="☢️ **【高危操作：销毁节点档案】**\n\n您即将从司令部彻底抹除节点 \`$TARGET_ALIAS\` 的追踪数据。\n\n⚠️ **风险提示**：\n1. 中枢数据库将永久丢失该节点的存活记录与 IP 污染体检趋势历史。\n2. 若边缘节点的 Agent 进程仍在运行，其下一次发送探测报告时将因未注册被司令部抛弃。\n\n**是否确定执行销毁动作？**"
+                    
+                    if [ -n "$MSG_ID" ]; then
+                        edit_ui "$CHAT_ID" "$MSG_ID" "$WARNING_MSG" "$CONFIRM_BTNS"
+                    else
+                        send_ui "$CHAT_ID" "$WARNING_MSG" "$CONFIRM_BTNS"
+                    fi
+                    ;;
+
+                del_execute:*)
                     TARGET_NODE=$(echo "${TEXT#*:}" | tr -cd 'a-zA-Z0-9_.-')
                     CHAT_ID=$(echo "$CHAT_ID" | tr -cd '0-9-')
                     
@@ -627,12 +643,23 @@ while true; do
                     if [ "$VALID_OWNER" == "1" ]; then
                         db_exec "DELETE FROM nodes WHERE chat_id='$CHAT_ID' AND node_name='$TARGET_NODE';"
                         db_exec "DELETE FROM ip_trend_log WHERE node_name='$TARGET_NODE';"
-                        send_msg "$CHAT_ID" "🗑️ 节点 \`$TARGET_NODE\` 的档案及历史污染趋势已从司令部彻底销毁！"
+                        
+                        # 销毁成功后，动态编辑当前面板以防点击残留，并发送捷报
+                        if [ -n "$MSG_ID" ]; then
+                            edit_msg "$CHAT_ID" "$MSG_ID" "🗑️ 节点 \`$TARGET_NODE\` 的档案及污染趋势历史已被强行抹除。"
+                        else
+                            send_msg "$CHAT_ID" "🗑️ 节点 \`$TARGET_NODE\` 的档案及历史污染趋势已从司令部彻底销毁！"
+                        fi
                     else
-                        send_msg "$CHAT_ID" "⛔ **安全拦截**：销毁失败。目标节点不存在或您无权越权操作！"
+                        if [ -n "$MSG_ID" ]; then
+                            edit_msg "$CHAT_ID" "$MSG_ID" "⛔ **安全拦截**：销毁失败。目标节点不存在或您无权越权操作！"
+                        else
+                            send_msg "$CHAT_ID" "⛔ **安全拦截**：销毁失败。目标节点不存在或您无权越权操作！"
+                        fi
                         continue
                     fi
                     
+                    # 销毁后重新加载战区级雷达矩阵
                     REGION_DATA=$(db_exec "SELECT region, COUNT(*) FROM nodes WHERE chat_id='$CHAT_ID' GROUP BY region;")
                     if [ -z "$REGION_DATA" ]; then
                         send_msg "$CHAT_ID" "⚠️ 当前司令部已无任何节点挂载。"
@@ -643,7 +670,7 @@ while true; do
                             FLAG=$(get_flag "$REGION_NAME")
                             BTNS="$BTNS[{\"text\":\"$FLAG $REGION_NAME ($NODE_COUNT 台)\",\"callback_data\":\"region:$REGION_NAME\"}],"
                         done <<< "$REGION_DATA"
-                        BTNS="${BTNS%,}]"
+                        BTNS="$BTNS[{\"text\":\"🏠 回到司令部\",\"callback_data\":\"/start\"}]]"
                         send_ui "$CHAT_ID" "🌍 刷新后的全视界雷达：" "$BTNS"
                     fi
                     ;;
