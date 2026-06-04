@@ -59,7 +59,7 @@
 
 > ☢️ **核按钮系统已就绪**：采用私有部署，您将解锁 **OTA 远程静默升级** 权限！所有私有前线节点均可通过您的 TG 面板实现一键全网代码热重载换代！
 
-- **部署 Master (中枢大脑)**：找一台 VPS 作为司令部（仅需部署一台），执行：
+- **部署 Master (中枢大脑)**：找一台 VPS 作为司令部（仅需部署一台,可以与Agent装在同一台VPS），执行：
 - [官方部署教程](https://blog.iot-architect.com/engineering-practice/ip-sentinel-master-deployment-guide/)
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/hotyue/IP-Sentinel/main/master/install_master.sh)"
@@ -73,6 +73,8 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/hotyue/IP-Sentinel/main/
 
 ### 🔸 模式 B：官方公共模式 (最简体验)
 适合不想折腾、只想快速体验养护效果的新兵。
+
+> ☢️ **核按钮系统已阉割**：采用官方BOT，您将失去 **OTA 远程静默升级** 权限！所有私有前线节点只能通过SSH登录进行更新换代！
 
 - 关注机器人：在 TG 中关注官方安全网关 [@OmniBeacon_bot](https://t.me/OmniBeacon_bot) 并发送 /start。
 
